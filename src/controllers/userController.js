@@ -1,27 +1,26 @@
 const connect = require('../db/connect');
+const validateUser = require('../services/validateUser');
+const validateCpf = require('../services/validateCpf');
 module.exports = class userController {
   static async createUser(req, res) {
     const { cpf, email, password, name, data_nascimento} = req.body;
-    const nascimentoDate =  new Date(data_nascimento);
-
-    if (!cpf || !email || !password || !name ||!data_nascimento) {
-      return res
-        .status(400)
-        .json({ error: "Todos os campos devem ser preenchidos" });
-    } else if (isNaN(cpf) || cpf.length !== 11) {
-      return res
-        .status(400)
-        .json({
-          error: "CPF inválido. Deve conter exatamente 11 dígitos numéricos",
-        });
-    } else if (!email.includes("@")) {
-      return res.status(400).json({ error: "Email inválido. Deve conter @" });
+    const validation = validateUser(req.body);
+    if(validation){
+      return res.status(400).json(validation)
     }
-    else if (nascimentoDate > new Date) {
-      return res.status(400).json({error: "data de nascimento invalida!!"});
+    const cpfValidation = await validateCpf(cpf, null)
+    if(cpfValidation){
+      return res.status(400).json(cpfValidation)
     }
+    
 
-    else{
+    //VALIDAÇÃO DA DATA DE NASCIMENTO 
+    //const nascimentoDate =  new Date(data_nascimento);
+    // else if (nascimentoDate > new Date) {
+    //   return res.status(400).json({error: "data de nascimento invalida!!"});
+    // }
+
+    
     // Construção da query INSERT 
     const query = `INSERT INTO usuario (cpf, password, email, name, data_nascimento) VALUES(
       '${cpf}', 
@@ -54,7 +53,7 @@ module.exports = class userController {
         console.error(error);
         res.status(500).json({error: "Erro interno do servidor!"})
     }
-    }
+    
   }
   static async getAllUsers(req, res) {
     const query = `SELECT * FROM usuario`;
@@ -79,13 +78,16 @@ module.exports = class userController {
   static async updateUser(req, res) {
     //Desestrutura e recupera dados enviados via corpo de requisição
     const { cpf, email, password, name, id } = req.body;
-
-    //Validar se os todos os campos foram preenchidos
-    if (!cpf || !email || !password || !name|| !id) {
-      return res
-        .status(400)
-        .json({ error: "Todos os campos devem ser preenchidos!!" });
+    const validation = validateUser(req.body);
+    if(validation){
+      return res.status(400).json(validation)
     }
+    
+    const cpfValidation = await validateCpf(cpf, id)
+    if(cpfValidation){
+      return res.status(400).json(cpfValidation)
+    }
+
     const query = `UPDATE usuario SET name=?, email=?, password=?, cpf=? WHERE id_usuario=?`;
     const values = [name, email, password, cpf, id];
 
