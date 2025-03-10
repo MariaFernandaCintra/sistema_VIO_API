@@ -1,7 +1,6 @@
 const connect = require("../db/connect");
 
-module.exports = class eventoController {
-    //criação de um evento 
+module.exports = class eventoController { 
     static async createEvento (req, res){
         const {nome, descricao, data_hora, local, fk_id_organizador} = req.body;
 
