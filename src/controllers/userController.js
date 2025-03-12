@@ -37,7 +37,12 @@ module.exports = class userController {
           console.log(err)
           console.log(err.code)
           if(err.code === 'ER_DUP_ENTRY') {  // tratamento do erro de uma duplicidade de email
-            return res.status(400).json({error: "O email já está vinculado a outro usuario!",});
+            if (err.message.includes("email")){
+              return res.status(400).json({error: "O email já está vinculado a outro usuario!",});
+            }else{
+              return res.status(400).json({error: "O CPF já está vinculado a outro usuario!",});
+            }
+            
           } 
           else{
             return res.status(400).json({error: "Erro interno do servidor!",});
@@ -75,47 +80,48 @@ module.exports = class userController {
 
 
 //UPDATE
-  static async updateUser(req, res) {
-    //Desestrutura e recupera dados enviados via corpo de requisição
-    const { cpf, email, password, name, id } = req.body;
-    const validation = validateUser(req.body);
-    if(validation){
-      return res.status(400).json(validation)
-    }
-    
-    const cpfValidation = await validateCpf(cpf, id)
-    if(cpfValidation){
-      return res.status(400).json(cpfValidation)
-    }
+static async updateUser(req, res) {
+  const { cpf, email, password, name, data_nascimento, id } = req.body;
 
-    const query = `UPDATE usuario SET name=?, email=?, password=?, cpf=? WHERE id_usuario=?`;
-    const values = [name, email, password, cpf, id];
+  const validationError = validateUser(req.body);
+  if (validationError) {
+    return res.status(400).json(validationError);
+  }
 
-    try {
-      connect.query(query, values, function (err, results) {
+  try {
+    const cpfError = await validateCpf(cpf, id);
+    if (cpfError) {
+      return res.status(400).json(cpfError);
+    }
+    const query =
+      "UPDATE usuario SET cpf = ?, email = ?, password = ?, name = ? , data_nascimento=? WHERE id_usuario = ?";
+    connect.query(
+      query,
+      [cpf, email, password, name, data_nascimento, id],
+      (err, results) => {
         if (err) {
-          if (err.code === "ER_DUR_ENTRY") {
+          if (err.code === "ER_DUP_ENTRY") {
+            if (err.message.includes("email")) {
+              return res.status(400).json({ error: "Email já cadastrado" });
+            }
+          } else {
             return res
               .status(400)
-              .json({ error: "Email já cadastrado por outro usuario" });
-          } else {
-            console.error(err);
-            return res.status(500).json({ error: "Erro interno do servidor" });
+              .json({ error: "CPF já cadastrado"});
           }
         }
         if (results.affectedRows === 0) {
-          return res.status(404).json({ error: "Usuario não encontrado" });
+          return res.status(404).json({ error: "Usuário não encontrado" });
         }
         return res
           .status(200)
-          .json({ message: "O usuario foi atualizado" });
-      });
-    }
-    catch (error) {
-      console.error("error ao executar consulta", error);
-      return res.status(500).json({ error: "Erro interno do servidor" });
-    }
+          .json({ message: "Usuário atualizado com sucesso" });
+      }
+    );
+  } catch (error) {
+    return res.status(500).json({ error });
   }
+}
 
   //DELETE
   static async deleteUser(req, res) {
