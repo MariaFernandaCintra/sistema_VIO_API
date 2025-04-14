@@ -67,3 +67,58 @@ delimiter ;
 call registrar_presenca (1, 1);
 
 drop procedure -- apaga a procedure
+
+
+-- EXERCÍCIO para fixação
+-- procudure para resumo do usuario
+delimiter //
+create procedure resumo_usuario(in pid int)
+begin
+    declare nome varchar(100);
+    declare email varchar(100);
+    declare totalrs decimal(10,2);
+    declare faixa varchar(20);
+
+    -- buscar o nome e o email do usuario 
+    select u.name, u.email into nome, email
+    from usuario u
+    where u.id_usuario = pid;
+    -- chamada das funções específicas já criadas 
+    set totalrs = calcula_total_gasto(pid);
+    set faixa = buscar_faixa_etaria_usuario(pid);
+
+    -- mostra os dados formatados
+    select nome as nome_usuario, 
+           email as email_usuario,
+           totalrs as total_gasto,
+           faixa as faixa_etaria;
+end; //
+delimiter ;
+
+
+-- EXERCÍCIO
+-- IP: 10.89.240.84
+
+delimiter //
+create procedure resumo_evento(id_evento int)
+begin 
+    declare nome varchar(100);
+    declare data_evento date;
+    declare total_ingressos int;
+    declare renda decimal (10,2);
+
+    select e.nome, e.data_hora into nome, data_evento
+    from evento e 
+    where e.id_evento = id_evento;
+
+    set total_ingressos = total_ingressos_vendidos(id_evento);
+    set renda = renda_total_evento(id_evento);
+
+    select nome,
+           data_evento,
+           total_ingressos,
+           renda;
+end; //
+delimiter ;
+
+
