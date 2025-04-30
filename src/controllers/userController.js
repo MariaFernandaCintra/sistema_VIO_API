@@ -1,4 +1,5 @@
 const connect = require('../db/connect');
+const jwt = require("jsonwebtoken");
 const validateUser = require('../services/validateUser');
 const validateCpf = require('../services/validateCpf');
 module.exports = class userController {
@@ -173,8 +174,13 @@ static async updateUser(req, res) {
           return res.status(403).json({error:"Senha incorreta!"})
         }
 
-        return res.status(200).json({message:"Login bem sucedido!", user})
+        const token = jwt.sign({ id: user.id_usuario }, process.env.SECRET, {
+          expiresIn: "1h",
+        });
 
+        delete user.password;
+
+        return res.status(200).json({message: "Login Bem-Sucedido", user, token})
       })
     }
     catch(error){
