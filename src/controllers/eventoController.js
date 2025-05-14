@@ -141,7 +141,7 @@ module.exports = class eventoController {
     }
 
 
-    static async getEventosAgendados(req, res){
+    static async getEventosSeteDias(req, res){
         const query = `SELECT * FROM evento`
 
         try{

@@ -19,11 +19,11 @@ router.delete("/organizador/:id", organizadorController.deleteOrganizador);
 
 //rotas eventoControler
 router.post("/evento", eventoController.createEvento);
-router.get("/evento", eventoController.getAllEventos);
+router.get("/evento",verifyJWT, eventoController.getAllEventos);
 router.put("/evento", eventoController.updateEvento);
 router.delete("/evento/:id", eventoController.deleteEvento);
 router.get("/evento/data", eventoController.getEventosPorData);
-router.get("/evento/:data", eventoController.getEventosAgendados)
+router.get("/evento/:data", verifyJWT, eventoController.getEventosSeteDias)
 
 //rotas ingressoContoller
 router.post("/ingresso", ingressoController.createIngresso);
