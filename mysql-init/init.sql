@@ -1,5 +1,5 @@
--- CREATE DATABASE  IF NOT EXISTS `vio_mafer` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
--- USE `vio_mafer`;
+CREATE DATABASE  IF NOT EXISTS `vio_mafer` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+USE `vio_mafer`;
 
 -- MySQL dump 10.13  Distrib 8.0.36, for Win64 (x86_64)
 --
@@ -259,6 +259,14 @@ UNLOCK TABLES;
 --
 -- Table structure for table `usuario`
 --
+
+CREATE TABLE IF NOT EXISTS historico_compra(
+  id_historico int not NULL AUTO_INCREMENT,
+  id_compra int NOT NULL,
+  data_compra datetime NOT NULL,
+  id_usuario int NOT NULL,
+  data_exclusao datetime DEFAULT current_timestamp, PRIMARY KEY (`id_historico`)
+);
 
 DROP TABLE IF EXISTS `usuario`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
