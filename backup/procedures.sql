@@ -1,23 +1,29 @@
 delimiter //
-create procedure register_compra(
-    in p_id_usuario int,
+CREATE DEFINER=`alunods`@`%` PROCEDURE `registrar_compra2`(
     in p_id_ingresso int,
+    in p_id_compra int,
     in p_quantidade int
+    
 )
 begin
-    declare v_id_compra int;
-    -- Criar registro na tebela 'compra'
-    INSERT INTO compra (data_compra, fk_id_usuario)
-    values (now(), p_id_usuario);
+    declare v_data_evento datetime;
+   
+    select e.data_hora into v_data_evento
+    from ingresso i join evento e
+    on i.fk_id_evento = e.id_evento
+    where i.id_ingresso = p_id_ingresso;
+   
+    if date(v_data_evento) < curdate() then
+    delete from ingresso_compra where fk_id_compra = p_id_compra;
+    delete from compra where id_compra = p_id_compra;
+    signal sqlstate '45000'
+    set message_text = "ERRO_PROCEDURE - Não é possível comprar ingressos para eventos passados.";
+    end if;
 
-    -- Obter o ID da compra recém-criada
-    set v_id_compra = last_insert_id();
+    insert into ingresso_compra (fk_id_compra, fk_id_ingresso, quantidade)
+    values (p_id_compra, p_id_ingresso, p_quantidade);
 
-    -- Registrar os ingressos comprados
-    INSERT INTO ingresso_compra(fk_id_compra, fk_id_ingresso, quantidade)
-    values (v_id_compra, p_id_ingresso, p_quantidade);
-end; //
-
+end
 
 delimiter ;
 
