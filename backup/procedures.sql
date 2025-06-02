@@ -1,25 +1,23 @@
 delimiter //
-
-create procedure registrar_compra(
+create procedure register_compra(
     in p_id_usuario int,
     in p_id_ingresso int,
     in p_quantidade int
 )
-begin 
-    declare v_id_compra;
-
--- CRIAR REGISTRO NA TABELA 'COMPRA'
-insert into compra (data_compra, fk_id_usuario)
+begin
+    declare v_id_compra int;
+    -- Criar registro na tebela 'compra'
+    INSERT INTO compra (data_compra, fk_id_usuario)
     values (now(), p_id_usuario);
 
--- OBTER OS INGRESSOS COMPRADOS 
-set v_id_compra = last_insert_id();
+    -- Obter o ID da compra recém-criada
+    set v_id_compra = last_insert_id();
 
--- REGISTRAR OS INGRESSOS COMPRADOS
-insert into ingresso_compra (fk_id_compra, fk_id_ingresso, quantidade)
+    -- Registrar os ingressos comprados
+    INSERT INTO ingresso_compra(fk_id_compra, fk_id_ingresso, quantidade)
     values (v_id_compra, p_id_ingresso, p_quantidade);
-
 end; //
+
 
 delimiter ;
 
