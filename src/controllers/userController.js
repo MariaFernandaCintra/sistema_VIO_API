@@ -183,7 +183,7 @@ static async updateUser(req, res) {
         }
 
         const token = jwt.sign({ id: user.id_usuario }, process.env.SECRET, {
-          expiresIn: "1h",
+          expiresIn: "10s",
         });
 
         delete user.password;
